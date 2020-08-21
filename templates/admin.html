@@ -98,7 +98,7 @@
         </td>
         <td>
             <select name="team" form="formuser{{item.id}}">
-              {% for team in teams %}
+              {% for team in all_teams %}
                 <option value="t_{{team.id}}">{{team.name}}</option>
               {% endfor %}
             </select>
