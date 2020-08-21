@@ -1,0 +1,67 @@
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Instant Ink Survey</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
+    <style>
+    .progress::-webkit-progress-value {
+      transition: width 0.5s ease;
+    }
+    .button.non-interactive {
+      pointer-events: none;
+      box-shadow: none;
+    }
+    </style>
+</head>
+
+<body>
+    <section class="hero is-primary is-fullheight">
+        <div class="hero-head">
+            <nav class="navbar">
+                <div id="navbarMenuHeroA" class="navbar-menu is-active">
+                    <div class="navbar-end">
+                        <a href="{{ url_for('main.index') }}" class="navbar-item">
+                            Home
+                        </a>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.profile') }}" class="navbar-item has-text-weight-bold">
+                                Surveys
+                            </a>
+                            {% if current_user.is_admin_user() %}
+                                <a href="{{ url_for('admin.index') }}" class="navbar-item">
+                                    Admin
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                        {% if not current_user.is_authenticated %}
+                            <a href="{{ url_for('auth.login') }}" class="navbar-item">
+                                Login
+                            </a>
+                        {% endif %}
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('auth.logout') }}" class="navbar-item">
+                                Logout
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <div class="hero-body">
+            <div class="container has-text-centered">
+               {% block content %}
+               {% endblock %}
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

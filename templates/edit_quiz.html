@@ -1,0 +1,86 @@
+<!-- templates/index.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        {% if category == 'error' %}
+            <div class="notification is-danger">
+               {{ message }}
+            </div>
+        {% else %}
+            <div class="notification is-success">
+               {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<h2 class="title">
+  Editing Quiz {{ quiz.name }}
+</h2>
+
+<br/>
+<h2 align="left">Current Questions</h2>
+<br/>
+
+<table class="table is-narrow table-striped table-responsive table-bordered is-fullwidth">
+    <thead>
+      <tr>
+        <th>Question</th>
+        <th>Category</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for item in current_questions %}
+        <tr>
+           <td style="color:#363636">{{item.question}}</td>
+           <td style="color:#363636"><strong>{{item.category}}</strong></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if quiz.state == 'new' %}
+
+<br/>
+<h2 align="left">Add an existing Question to this survey</h2>
+<br/>
+
+<table class="table is-narrow table-striped table-responsive table-bordered is-fullwidth">
+    <thead>
+      <tr>
+        <th colspan="2">Question</th>
+        <th>Category</th>
+        <th>Add to Quiz</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for item in possible_questions %}
+        <tr>
+            <td><form id="formaddquestion{{item.id}}" action="/quiz/question/add" method="post">
+                <input type="hidden" name="question_id" value="{{item.id}}"/>
+                <input type="hidden" name="quiz_id" value="{{quiz.id}}"/>
+            </form></td>
+           <td style="color:#363636">{{item.question}}</td>
+            <td style="color:#363636"><strong>{{item.category}}</strong></td>
+            {% if quiz.state == 'new' %}
+           <td>
+               <input class="button is-block is-info is-small" form="formaddquestion{{item.id}}"
+                      type="submit" name="add" value="Add to Quiz" />
+           </td>
+            {% else %}
+           <td> </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endif %}
+
+{% endblock %}

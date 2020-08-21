@@ -1,0 +1,54 @@
+<!-- templates/profile.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        {% if category == 'error' %}
+            <div class="notification is-danger">
+               {{ message }}
+            </div>
+        {% else %}
+            <div class="notification is-success">
+               {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+{% if count > 0 %}
+
+<br/>
+<h2 align="left">Responding a survey for <strong>{{team}}</strong></h2>
+<br/>
+
+<form method="POST" action="/quiz/answer">
+    <input type="hidden" name="quiz_id" value="{{quiz_id}}"/>
+    {% for obj in categories %}
+    <br/>
+    <h2 align="left"><strong>{{obj['category']}}</strong></h2>
+        {% for question in obj['questions'] %}
+            <h2 align="left">{{question.question}}</h2>
+            <div class="control">
+                {% for i in range(6) %}
+                <label class="radio">
+                    <input type="radio" name="q_{{question.id}}" value="{{i}}">
+                    {{i}}
+                </label>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <br/>
+    <button class="button is-block is-info is-medium is-fullwidth">Submit</button>
+
+</form>
+
+{% endif %}
+
+{% endblock %}

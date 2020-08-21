@@ -1,0 +1,40 @@
+<!-- templates/signup.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Redefinir Senha</h3>
+    <div class="box">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'success' %}
+                    <div class="notification is-success">
+                       {{ message }}
+                    </div>
+                {% else %}
+                    <div class="notification is-danger">
+                       {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form id="redefineForm" method="POST" action="/login/redefine">
+            <h3>Nova senha para: <strong>{{email}}</strong></h3>
+
+            <input form="redefineForm" type="hidden" name="code" value="{{code}}"/>
+
+            <div class="field">
+                <div class="control">
+                    <input form="redefineForm" class="input is-large"
+                           type="password" name="password" placeholder="Password">
+                </div>
+            </div>
+
+            <button class="button is-block is-info is-large is-fullwidth">Definir nova senha</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
