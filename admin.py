@@ -101,11 +101,15 @@ def stats(quiz_id):
 def quiz_create_post():
     quiz_name = request.form.get('survey_name')
     if current_user.is_admin_user():
-        new_quiz = Quiz(name=quiz_name, state='new')
-        db.session.add(new_quiz)
-        db.session.commit()
-        flash('Survey %s created successfully!' % quiz_name, 'success')
-        return redirect(url_for('admin.index'))
+        if len(quiz_name) > 0:
+            new_quiz = Quiz(name=quiz_name, state='new')
+            db.session.add(new_quiz)
+            db.session.commit()
+            flash('Survey %s created successfully!' % quiz_name, 'success')
+            return redirect(url_for('admin.index'))
+        else:
+            flash('Invalid quiz name', 'error')
+            return redirect(url_for('admin.index'))
     else:
         flash('User is not an admin', 'error')
         return redirect(url_for('main.profile'))
@@ -118,6 +122,12 @@ def user_create_post():
     email = request.form.get('email')
     team_label = request.form.get('team')
     if current_user.is_admin_user():
+        if len(user_name) == 0:
+            flash('Invalid user name', 'error')
+            return redirect(url_for('admin.index'))
+        if len(email) == 0:
+            flash('Invalid email', 'error')
+            return redirect(url_for('admin.index'))
         user = User.query.filter_by(email=email).first()
         team = Team.query.filter_by(id=int(team_label[2:])).first()
         if user:
@@ -169,6 +179,9 @@ def question_create_post():
     question_name = request.form.get('question_name')
     question_category = request.form.get('question_category')
     if current_user.is_admin_user():
+        if len(question_name) == 0 or len(question_category) == 0:
+            flash('Invalid question data', 'error')
+            return redirect(url_for('admin.index'))
         new_quiz = Question(question=question_name, category=question_category)
         db.session.add(new_quiz)
         db.session.commit()
@@ -203,9 +216,12 @@ def add_question():
 @admin.route('/team/create', methods=['POST'])
 @login_required
 def team_create_post():
-    team_name = request.form.get('question_name')
+    team_name = request.form.get('team_name')
     answers_questions = 1 if request.form.get('participation') == 'yes' else 0
     if current_user.is_admin_user():
+        if len(team_name) == 0:
+            flash('Invalid team name', 'error')
+            return redirect(url_for('admin.index'))
         new_team = Team(name=team_name, answers_questions=answers_questions)
         db.session.add(new_team)
         db.session.commit()
