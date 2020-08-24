@@ -5,6 +5,7 @@ from app import db
 import random
 import sendgrid
 import os
+from statistics import mean
 from sendgrid.helpers.mail import Email, Content, Mail, To
 
 
@@ -33,20 +34,63 @@ def index():
                 'question_count': len(l.questions),
                 'respondents': len(set(sum([[ans.user_id for ans in qiq.answers] for qiq in l.questions], []))),
                 'next_state': next_state[l.state]
-            } for l in Quiz.query.all()], key=lambda s: quiz_states.index(s['state']))
+            } for l in Quiz.query.all()], key=lambda s: (quiz_states.index(s['state']), -s['id']))
         all_teams = [{
             'id': t.id,
             'name': t.name,
             'state': 'Accepts Answers' if t.answers_questions == 1 else 'Guest',
             'member_count': len(t.users)
         } for t in Team.query.all()]
-        users = [{
+        users = sorted([{
             'id': u.id,
             'name': u.name,
             'email': u.email,
+            'checked_in': u.password is not None,
             'team': u.team.name
-        } for u in User.query.all()]
+        } for u in User.query.all()], key=lambda e: e['id'])
         return render_template('admin.html', teams=teams, surveys=surveys, all_teams=all_teams, users=users)
+    else:
+        flash('User is not an admin', 'error')
+        return redirect(url_for('main.profile'))
+
+
+@admin.route('/quiz/stats/<int:quiz_id>')
+@login_required
+def stats(quiz_id):
+    if current_user.is_admin_user():
+        quiz = Quiz.query.filter_by(id=quiz_id).first()
+        if quiz is not None:
+            team_summary = [
+                {
+                    'team': t.name,
+                    'questions': [
+                        {
+                            'question': q.question.question,
+                            'answers': [float(a.value) for a in q.answers if a.team_id == t.id]
+                        } for q in QuestionInQuiz.query.filter_by(quiz_id=quiz.id).all()
+                    ]
+                } for t in Team.query.filter_by(answers_questions=1).all()
+            ]
+            print(team_summary)
+            team_tops = []
+            for team in team_summary:
+                for question in team['questions']:
+                    if len(question['answers']) > 0:
+                        question['average'] = mean(question['answers'])
+                        question['average_rd'] = '%.2f' % question['average']
+                if len([q for q in team['questions'] if 'average' in q]) >= 6:
+                    team['questions'] = sorted([q for q in team['questions'] if 'average' in q],
+                                               key=lambda e: e['average'], reverse=True)
+                    team_tops.append({
+                        'team': team['team'],
+                        'top': team['questions'][:3],
+                        'bottom': team['questions'][-3:]
+                    })
+            print(team_tops)
+            return render_template('stats.html', quiz_name=quiz.name, tops=team_tops)
+        else:
+            flash('No available surveys', 'error')
+            return redirect(url_for('main.index'))
     else:
         flash('User is not an admin', 'error')
         return redirect(url_for('main.profile'))
@@ -137,7 +181,7 @@ def question_create_post():
 
 @admin.route('/quiz/question/add', methods=['POST'])
 @login_required
-def add_category():
+def add_question():
     quiz_id = int(request.form.get('quiz_id'))
     question_id = int(request.form.get('question_id'))
     if current_user.is_admin_user():

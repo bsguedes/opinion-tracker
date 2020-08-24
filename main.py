@@ -20,11 +20,13 @@ def index():
 def profile():
     available_quiz = Quiz.query.filter_by(state='available').first()
     if available_quiz is not None:
-        questions = [qiq.question for qiq in available_quiz.questions if not qiq.is_answered(current_user)]
+        questions = sorted([qiq.question for qiq in available_quiz.questions if not qiq.is_answered(current_user)],
+                           key=lambda e: e.category)
         groups = [{
                     'category': cat,
                     'questions': [q for q in qst]
                   } for cat, qst in groupby(questions, key=lambda x: x.category)]
+        print(groups)
         return render_template('profile.html', name=current_user.name, team=current_user.team.name,
                                count=len(groups),
                                categories=groups,
@@ -41,11 +43,13 @@ def answer_post():
     quiz_id = int(request.form.get('quiz_id'))
     if Quiz.query.filter_by(id=quiz_id).first().state == 'available':
         for obj in request.form:
-            if obj != 'quiz_id':
-                question_in_quiz = QuestionInQuiz.query.filter_by(question_id=int(obj[2:]), quiz_id=quiz_id).first()
+            if obj != 'quiz_id' and obj[0:2] == 'q_':
+                question_id = int(obj[2:])
+                question_in_quiz = QuestionInQuiz.query.filter_by(question_id=question_id, quiz_id=quiz_id).first()
                 answer = int(request.form.getlist(obj)[0])
+                comments = request.form.get('c_%i' % question_id)
                 new_answer = Answer(question_in_quiz_id=question_in_quiz.id, user_id=current_user.id, value=answer,
-                                    team_id=current_user.team_id)
+                                    team_id=current_user.team_id, comments=comments)
                 db.session.add(new_answer)
                 db.session.commit()
         flash('Sent your answers successfully', 'success')

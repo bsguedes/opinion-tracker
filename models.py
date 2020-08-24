@@ -19,7 +19,7 @@ class Quiz(db.Model):
 
     def has_question(self, question_id):
         for q in self.questions:
-            if question_id == q.id:
+            if question_id == q.question.id:
                 return True
         return False
 
@@ -52,6 +52,7 @@ class Answer(db.Model):
     team = db.relationship("Team")
     value = db.Column(db.Integer, nullable=False)
     question_in_quiz_id = db.Column(db.Integer, db.ForeignKey('question_in_quiz.id'), nullable=False)
+    comments = db.Column(db.String(1000))
 
 
 class User(UserMixin, db.Model):

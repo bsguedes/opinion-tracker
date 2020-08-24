@@ -1,0 +1,40 @@
+<!-- templates/index.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="subtitle">
+  {{quiz_name}}
+</h2>
+
+{% for team in tops %}
+    <br/>
+    <h1 style="font-size:22px"><strong>{{team['team']}}</strong></h1>
+    <br/>
+    <h1 style="font-size:18px"><strong>Top 3 Scores</strong></h1>
+    <br/>
+    {% for question in team['top'] %}
+      <div class="tile is-ancestor">
+        <div class="tile is-parent">
+          <div class="tile is-child notification box is-success">
+            <p class="heading">{{question['question']}}</p>
+            <p class="title is-6">{{question['average_rd']}}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    {% for question in team['bottom'] %}
+      <div class="tile is-ancestor">
+        <div class="tile is-parent">
+          <div class="tile is-child notification box is-danger">
+            <p class="heading">{{question['question']}}</p>
+            <p class="title is-6">{{question['average_rd']}}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+{% endfor %}
+
+{% endblock %}
