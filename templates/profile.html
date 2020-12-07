@@ -25,7 +25,7 @@
 <br/>
 <h2 align="left">Responding a survey for <strong>{{team}}</strong></h2>
 
-<h2 align="left">0 - Never, 1 - Very Rarely, 2 - Rarely, 3 - Occasionally, 4 - Very Frequently, 5 - Always</h2>
+<!--<h2 align="left">0 - Never, 1 - Very Rarely, 2 - Rarely, 3 - Occasionally, 4 - Very Frequently, 5 - Always</h2>-->
 <br/>
 
 <form method="POST" action="/quiz/answer">
@@ -35,18 +35,25 @@
     <h1 style="font-size:18px" align="left"><strong>{{obj['category']}}</strong></h1>
         {% for question in obj['questions'] %}
             <h2 align="left">{{question.question}}</h2>
-            <div class="control">
-                {% for i in range(6) %}
-                <label class="radio">
-                    <input type="radio" name="q_{{question.id}}" value="{{i}}">
-                    <strong>{{i}}</strong>
-                </label>
-                {% endfor %}
-            </div>
-            <div class="control">
-                <input class="input is-small" name="c_{{question.id}}" placeholder="Comments (optional)"
-                       maxlength="300">
-            </div>
+            {% if question['type'] == "ii_awards_2020" %}
+                <div class="control">
+                    <input class="input is-small" name="q_{{question.id}}" placeholder="Answer"
+                           maxlength="300">
+                </div>
+            {% else %}
+                <div class="control">
+                    {% for i in range(6) %}
+                    <label class="radio">
+                        <input type="radio" name="q_{{question.id}}" value="{{i}}">
+                        <strong>{{i}}</strong>
+                    </label>
+                    {% endfor %}
+                </div>
+                <div class="control">
+                    <input class="input is-small" name="c_{{question.id}}" placeholder="Comments (optional)"
+                           maxlength="300">
+                </div>
+            {% endif %}
             <br/>
         {% endfor %}
     {% endfor %}

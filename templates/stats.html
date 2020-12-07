@@ -7,6 +7,36 @@
   {{quiz_name}}
 </h2>
 
+{% for item in tables %}
+{% if item['results'] != [] %}
+<br/>
+<h2 align="left">{{item['team']}}</h2>
+<br/>
+
+<br/>
+<h3 align="left">{{item['question']}}</h3>
+<br/>
+
+<table class="table is-narrow table-striped table-responsive table-bordered is-fullwidth">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Votes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in item['results'] %}
+        <tr>
+           <td style="color:#212121;font-weight:bold">{{row['name']}}</td>
+           <td style="color:#363636">{{row['votes']}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endfor %}
+
+
 {% for team in tops %}
     <br/>
     <h1 style="font-size:22px"><strong>{{team['team']}}</strong></h1>
@@ -23,6 +53,7 @@
         </div>
       </div>
     {% endfor %}
+
 
     {% for question in team['bottom'] %}
       <div class="tile is-ancestor">

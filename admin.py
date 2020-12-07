@@ -7,6 +7,7 @@ import sendgrid
 import os
 from statistics import mean
 from sendgrid.helpers.mail import Email, Content, Mail, To
+from collections import Counter
 
 
 admin = Blueprint('admin', __name__)
@@ -66,12 +67,30 @@ def stats(quiz_id):
                     'questions': [
                         {
                             'question': q.question.question,
-                            'answers': [float(a.value) for a in q.answers if a.team_id == t.id]
+                            'type': q.question.type,
+                            'answers': [float(a.value) for a in q.answers if a.team_id == t.id],
+                            'comments': [a.comments for a in q.answers if a.team_id == t.id]
                         } for q in QuestionInQuiz.query.filter_by(quiz_id=quiz.id).all()
                     ]
                 } for t in Team.query.filter_by(answers_questions=1).all()
             ]
             print(team_summary)
+
+            tables = []
+            for team in team_summary:
+                for question in team['questions']:
+                    if question['type'] == 'ii_awards_2020':
+                        tables.append({
+                            'team': team['team'],
+                            'question': question['question'],
+                            'results': sorted([{
+                                'name': item[0].title(),
+                                'votes': item[1]
+                            } for item in Counter(question['comments']).most_common()], key=lambda e: -e['votes'])
+                        })
+
+            print(tables)
+
             team_tops = []
             for team in team_summary:
                 for question in team['questions']:
@@ -87,7 +106,7 @@ def stats(quiz_id):
                         'bottom': team['questions'][-3:]
                     })
             print(team_tops)
-            return render_template('stats.html', quiz_name=quiz.name, tops=team_tops)
+            return render_template('stats.html', quiz_name=quiz.name, tops=team_tops, tables=tables)
         else:
             flash('No available surveys', 'error')
             return redirect(url_for('main.index'))
@@ -178,11 +197,12 @@ def user_change_team():
 def question_create_post():
     question_name = request.form.get('question_name')
     question_category = request.form.get('question_category')
+    question_type = request.form.get('type')
     if current_user.is_admin_user():
         if len(question_name) == 0 or len(question_category) == 0:
             flash('Invalid question data', 'error')
             return redirect(url_for('admin.index'))
-        new_quiz = Question(question=question_name, category=question_category)
+        new_quiz = Question(question=question_name, category=question_category, type=question_type)
         db.session.add(new_quiz)
         db.session.commit()
         flash('Question added successfully!', 'success')
