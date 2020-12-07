@@ -284,6 +284,31 @@
     </table>
 </form>
 
+<br/>
+<h2 align="left">See Group Statistics</h2>
+<br/>
 
+<table class="table is-narrow table-striped table-responsive table-bordered is-fullwidth">
+    <thead>
+    <tr>
+        <th>Group Name</th>
+        <th>Question Count</th>
+        <th>Total Answers</th>
+        <th>Summary</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in groups %}
+        <tr>
+            <td style="color:#363636">{{item['name']}}</td>
+            <td style="color:#363636;font-weight:bold">{{item['question_count']}}</td>
+            <td style="color:#363636">{{item['answer_count']}}</td>
+            <td>
+                <a class="button is-link is-success is-small" href="/quiz/group/{{item['tag']}}">Summary</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

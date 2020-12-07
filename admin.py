@@ -49,7 +49,41 @@ def index():
             'checked_in': u.password is not None,
             'team': u.team.name
         } for u in User.query.all()], key=lambda e: e['id'])
-        return render_template('admin.html', teams=teams, surveys=surveys, all_teams=all_teams, users=users)
+        questions = Question.query.filter_by(type='ii_awards_2020').all()
+        groups = [
+            {
+                'name': 'Instant Ink Awards 2020',
+                'question_count': len(questions),
+                'answer_count': sum(len(q.answers()) for q in questions),
+                'tag': 'ii_awards_2020'
+            }
+        ]
+        return render_template('admin.html',
+                               teams=teams,
+                               surveys=surveys,
+                               all_teams=all_teams,
+                               users=users,
+                               groups=groups)
+    else:
+        flash('User is not an admin', 'error')
+        return redirect(url_for('main.profile'))
+
+
+@admin.route('/quiz/group/<string:group_name>')
+@login_required
+def group_stats(group_name):
+    if current_user.is_admin_user():
+        questions = Question.query.filter_by(type=group_name).all()
+        all_answers = [a.comments for q in questions for a in q.answers()]
+
+        results = sorted([{
+                'name': item[0].title(),
+                'votes': item[1]
+            } for item in Counter(all_answers).most_common()], key=lambda e: -e['votes'])
+
+        print(results)
+
+        return render_template('group_stats.html', tables=results)
     else:
         flash('User is not an admin', 'error')
         return redirect(url_for('main.profile'))

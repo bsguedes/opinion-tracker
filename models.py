@@ -43,6 +43,9 @@ class Question(db.Model):
     type = db.Column(db.String(100))
     quizzes = db.relationship('QuestionInQuiz', lazy=True, foreign_keys="QuestionInQuiz.question_id")
 
+    def answers(self):
+        return [a for q in self.quizzes for a in q.answers]
+
 
 class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # primary keys are required by SQLAlchemy

@@ -1,0 +1,27 @@
+<!-- templates/index.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if tables != [] %}
+
+<table class="table is-narrow table-striped table-responsive table-bordered is-fullwidth">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Votes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in tables %}
+        <tr>
+           <td style="color:#212121;font-weight:bold">{{row['name']}}</td>
+           <td style="color:#363636">{{row['votes']}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% endblock %}
